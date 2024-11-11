@@ -13,6 +13,7 @@ import (
 )
 
 var _ provider.Provider = &KeystoreProvider{}
+
 type KeystoreProvider struct {
 	// version is set to the provider version on release, "dev" when the
 	// provider is built and ran locally, and "test" when running acceptance
@@ -22,7 +23,6 @@ type KeystoreProvider struct {
 
 // KeystoreProviderModel describes the provider data model.
 type KeystoreProviderModel struct {
-	
 }
 
 func (p *KeystoreProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
@@ -33,9 +33,7 @@ func (p *KeystoreProvider) Metadata(ctx context.Context, req provider.MetadataRe
 func (p *KeystoreProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description: "JKS provider.",
-		Attributes: map[string]schema.Attribute{
-			
-		},
+		Attributes:  map[string]schema.Attribute{},
 	}
 }
 
@@ -51,7 +49,6 @@ func (p *KeystoreProvider) Configure(ctx context.Context, req provider.Configure
 	// Configuration values are now available.
 	// if data.Endpoint.IsNull() { /* ... */ }
 
-	
 }
 
 func (p *KeystoreProvider) Resources(ctx context.Context) []func() resource.Resource {
@@ -65,8 +62,6 @@ func (p *KeystoreProvider) DataSources(ctx context.Context) []func() datasource.
 		NewKeystoreDataSource,
 	}
 }
-
-
 
 func New(version string) func() provider.Provider {
 	return func() provider.Provider {

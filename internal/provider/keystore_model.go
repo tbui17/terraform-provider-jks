@@ -16,12 +16,9 @@ type KeystoreModel struct {
 }
 
 const (
-	FILENAME = "79e00021-58b2-4652-b498-59134c0ed6e7.pkcs12"
+	FILENAME  = "79e00021-58b2-4652-b498-59134c0ed6e7.pkcs12"
 	FILENAME2 = "79e00021-58b2-4652-b498-59134c0ed6e72.pkcs12"
 )
-
-
-
 
 func (m KeystoreModel) CreateKeystoreBase64() (string, error) {
 	fileName := FILENAME
@@ -83,7 +80,6 @@ func (oldModel KeystoreModel) UpdateKeystoreBase64(newPassword string) (string, 
 		"-destkeypass", newPassword,
 	)
 
-	
 	if out, err := changePassCmd.CombinedOutput(); err != nil {
 		return "", fmt.Errorf("error changing password\nError: %s\nOutput: %s", err, string(out))
 	}

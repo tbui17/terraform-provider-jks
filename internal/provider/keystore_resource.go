@@ -20,7 +20,6 @@ import (
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ resource.Resource = &KeystoreResource{}
 
-
 func NewKeystoreResource() resource.Resource {
 	return &KeystoreResource{}
 }
@@ -31,15 +30,14 @@ type KeystoreResource struct {
 
 // KeystoreResourceModel describes the resource data model.
 type KeystoreResourceModel struct {
-	Id 	   types.String `tfsdk:"id"`
+	Id         types.String `tfsdk:"id"`
 	Password   types.String `tfsdk:"password"`
 	Base64Text types.String `tfsdk:"base64_text"`
-	
 }
 
 func (r KeystoreResourceModel) ToKeystoreModel() KeystoreModel {
 	return KeystoreModel{
-		Password: r.Password.ValueString(),
+		Password:   r.Password.ValueString(),
 		Base64Text: r.Base64Text.ValueString(),
 	}
 }
@@ -71,8 +69,6 @@ func (r *KeystoreResource) Schema(ctx context.Context, req resource.SchemaReques
 			"base64_text": schema.StringAttribute{
 				Computed:  true,
 				Sensitive: true,
-				
-
 			},
 		},
 	}
@@ -88,7 +84,6 @@ func (r *KeystoreResource) Configure(ctx context.Context, req resource.Configure
 func (r *KeystoreResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data KeystoreResourceModel
 
-	
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
@@ -96,11 +91,10 @@ func (r *KeystoreResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	model:= data.ToKeystoreModel()
-	
+	model := data.ToKeystoreModel()
+
 	b64File, err := model.CreateKeystoreBase64()
 	model.Base64Text = b64File
-	
 
 	if err != nil {
 		resp.Diagnostics.AddError("Error during create operation", err.Error())
@@ -109,7 +103,6 @@ func (r *KeystoreResource) Create(ctx context.Context, req resource.CreateReques
 
 	data.Id = types.StringValue(uuid.New().String())
 	data.Base64Text = types.StringValue(model.Base64Text)
-
 
 	// Write logs using the tflog package
 	// Documentation: https://terraform.io/plugin/log
@@ -150,7 +143,6 @@ func (r *KeystoreResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
-	
 	newModel := data.ToKeystoreModel()
 	oldModel := oldData.ToKeystoreModel()
 	b64File, err := oldModel.UpdateKeystoreBase64(newModel.Password)
@@ -161,7 +153,6 @@ func (r *KeystoreResource) Update(ctx context.Context, req resource.UpdateReques
 
 	newModel.Base64Text = b64File
 	data.Base64Text = types.StringValue(newModel.Base64Text)
-
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

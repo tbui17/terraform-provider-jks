@@ -17,7 +17,6 @@ func TestAccKeystoreDataSource(t *testing.T) {
 			// Read testing
 			{
 				Config: testAccExampleDataSourceConfig,
-				
 			},
 		},
 	})

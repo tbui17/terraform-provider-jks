@@ -10,21 +10,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 )
 
-
-
-
 func NewKeystoreDataSource() datasource.DataSource {
 	return &KeystoreDataSource{}
 }
 
-
 type KeystoreDataSource struct {
-	
 }
 
 // KeystoreDataSourceModel describes the data source data model.
 type KeystoreDataSourceModel struct {
-	
 }
 
 func (d *KeystoreDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -36,8 +30,7 @@ func (d *KeystoreDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 		// This description is used by the documentation generator and the language server.
 		MarkdownDescription: "Not implemented.",
 
-		Attributes: map[string]schema.Attribute{
-		},
+		Attributes: map[string]schema.Attribute{},
 	}
 }
 
