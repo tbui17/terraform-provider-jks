@@ -12,7 +12,22 @@ import (
 
 type KeystoreModel struct {
 	Password   string
-	Base64Text string
+	File string
+	DistinguishedName DistinguishedName
+
+}
+
+type DistinguishedName struct {
+	CommonName string
+	Organization string
+	OrganizationalUnit string
+	Locality string
+	State string
+	Country string
+}
+
+func (d DistinguishedName) String() string {
+	return fmt.Sprintf("CN=%s, OU=%s, O=%s, L=%s, S=%s, C=%s",d.CommonName,d.OrganizationalUnit,d.Organization,d.Locality,d.State,d.Country)
 }
 
 const (
@@ -34,7 +49,7 @@ func (m KeystoreModel) CreateKeystoreBase64() (string, error) {
 		"-validity", "10000",
 		"-keyalg", "RSA",
 		"-keysize", "2048",
-		"-dname", "CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, S=Unknown, C=Unknown",
+		"-dname", m.DistinguishedName.String(),
 	)
 
 	output, err := cmd.CombinedOutput()
@@ -59,7 +74,7 @@ func (oldModel KeystoreModel) UpdateKeystoreBase64(newPassword string) (string, 
 	fileName := FILENAME
 	fileName2 := FILENAME2
 
-	decoded, err := base64.StdEncoding.DecodeString(oldModel.Base64Text)
+	decoded, err := base64.StdEncoding.DecodeString(oldModel.File)
 	if err != nil {
 		return "", err
 	}

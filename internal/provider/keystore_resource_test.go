@@ -31,6 +31,9 @@ const (
 func TestAccKeystoreResource(t *testing.T) {
 
 	model := KeystoreModel{
+		DistinguishedName: DistinguishedName{
+			CommonName:         "MyCommonName",
+		},
 		Password: "MyPassword12345",
 	}
 
@@ -50,12 +53,13 @@ func TestAccKeystoreResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testCheckResourceAttrLengthGreater(TestResourceFullName, "id", 0),
 					resource.TestCheckResourceAttr(TestResourceFullName, "password", model.Password),
-					testCheckResourceAttrLengthGreater(TestResourceFullName, "base64_text", 1000),
+					testCheckResourceAttrLengthGreater(TestResourceFullName, "file", 1000),
+					resource.TestCheckResourceAttr(TestResourceFullName, "common_name", model.DistinguishedName.CommonName),
 				),
 				ConfigStateChecks: []statecheck.StateCheck{
 					valuesDifferCtx.AddStateValue(
 						TestResourceFullName,
-						tfjsonpath.New("base64_text"),
+						tfjsonpath.New("file"),
 					),
 					valuesSameCtx.AddStateValue(
 						TestResourceFullName,
@@ -69,7 +73,7 @@ func TestAccKeystoreResource(t *testing.T) {
 				ConfigStateChecks: []statecheck.StateCheck{
 					valuesDifferCtx.AddStateValue(
 						TestResourceFullName,
-						tfjsonpath.New("base64_text"),
+						tfjsonpath.New("file"),
 					),
 					valuesSameCtx.AddStateValue(
 						TestResourceFullName,
@@ -95,16 +99,16 @@ func testCheckKeepEncodedFile() resource.TestCheckFunc {
 			return fmt.Errorf("not found: %s", TestResourceFullName)
 		}
 
-		val, ok := rs.Primary.Attributes["base64_text"]
+		val, ok := rs.Primary.Attributes["file"]
 		if !ok {
-			return fmt.Errorf("attribute not found: %s", "base64_text")
+			return fmt.Errorf("attribute not found: %s", "file")
 		}
-		current := rootModule.Resources[TestResourceFullName].Primary.Attributes["base64_text"]
+		current := rootModule.Resources[TestResourceFullName].Primary.Attributes["file"]
 		if len(current) < 1000 {
-			return fmt.Errorf("attribute %s is %s, expected length > 1000", "base64_text", current)
+			return fmt.Errorf("attribute %s is %s, expected length > 1000", "file", current)
 		}
 		if current != val {
-			return fmt.Errorf("attribute %s is %s, expected %s", "base64_text", val, current)
+			return fmt.Errorf("attribute %s is %s, expected %s", "file", val, current)
 		}
 
 		return nil
@@ -133,9 +137,22 @@ func testCheckResourceAttrLengthGreater(resourceName, attributeName string, minL
 
 func ToTfResourceString(m KeystoreModel) string {
 	return fmt.Sprintf(`
-	resource "jks_keystore" "test" {
-		password = %q
-		
-		}`, m.Password,
+resource "jks_keystore" "test" {
+    password = %q
+    common_name = %q
+    organization = %q
+    organizational_unit = %q
+    locality = %q
+    state = %q
+    country = %q
+}`,
+
+		m.Password,
+		m.DistinguishedName.CommonName,
+		m.DistinguishedName.Organization,
+		m.DistinguishedName.OrganizationalUnit,
+		m.DistinguishedName.Locality,
+		m.DistinguishedName.State,
+		m.DistinguishedName.Country,
 	)
 }

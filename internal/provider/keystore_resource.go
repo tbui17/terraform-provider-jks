@@ -8,7 +8,6 @@ import (
 	"reflect"
 
 	"github.com/google/uuid"
-
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -30,15 +29,29 @@ type KeystoreResource struct {
 
 // KeystoreResourceModel describes the resource data model.
 type KeystoreResourceModel struct {
-	Id         types.String `tfsdk:"id"`
-	Password   types.String `tfsdk:"password"`
-	Base64Text types.String `tfsdk:"base64_text"`
+	Id                 types.String `tfsdk:"id"`
+	Password           types.String `tfsdk:"password"`
+	File               types.String `tfsdk:"file"`
+	CommonName         types.String `tfsdk:"common_name"`
+	Organization       types.String `tfsdk:"organization"`
+	OrganizationalUnit types.String `tfsdk:"organizational_unit"`
+	Locality           types.String `tfsdk:"locality"`
+	State              types.String `tfsdk:"state"`
+	Country            types.String `tfsdk:"country"`
 }
 
 func (r KeystoreResourceModel) ToKeystoreModel() KeystoreModel {
 	return KeystoreModel{
-		Password:   r.Password.ValueString(),
-		Base64Text: r.Base64Text.ValueString(),
+		Password: r.Password.ValueString(),
+		File:     r.File.ValueString(),
+		DistinguishedName: DistinguishedName{
+			CommonName:         r.CommonName.ValueString(),
+			Organization:       r.Organization.ValueString(),
+			OrganizationalUnit: r.OrganizationalUnit.ValueString(),
+			Locality:           r.Locality.ValueString(),
+			State:              r.State.ValueString(),
+			Country:            r.Country.ValueString(),
+		},
 	}
 }
 
@@ -47,28 +60,75 @@ func (r *KeystoreResource) Metadata(ctx context.Context, req resource.MetadataRe
 }
 
 func (r *KeystoreResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
 		Description: `
-		Keystore resource which creates a base64 encoded keystore file using the keytool utility.
-		The machine running Terraform needs to have the keytool utility installed. https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html.
-		File is persisted solely within the Terraform state as base64 text.
-		`,
+        Keystore resource which creates a base64 encoded PKCS12 keystore file valid for 25 years using the keytool utility.
+        The machine running Terraform needs to have the keytool utility installed. https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html.
+        The file is persisted solely within the Terraform state as base64 text.
+        `,
 
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Description: "Generated UUID for the keystore",
+				Computed:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"password": schema.StringAttribute{
-				Required:  true,
-				Sensitive: true,
+				Description: "Password for the keystore and the single key in the keystore",
+				Required:    true,
+				Sensitive:   true,
 			},
-			"base64_text": schema.StringAttribute{
-				Computed:  true,
-				Sensitive: true,
+			"file": schema.StringAttribute{
+
+				Description: "Base64 encoded keystore file",
+				Computed:    true,
+				Sensitive:   true,
+			},
+			"common_name": schema.StringAttribute{
+				Description: "Common Name (CN)",
+				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplaceIfConfigured(),
+				},
+			},
+			"organization": schema.StringAttribute{
+				Description: "Organization (O)",
+				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplaceIfConfigured(),
+				},
+			},
+			"organizational_unit": schema.StringAttribute{
+				Description: "Organizational Unit (OU)",
+				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplaceIfConfigured(),
+				},
+			},
+			"locality": schema.StringAttribute{
+				Description: "Locality (L)",
+				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplaceIfConfigured(),
+				},
+			},
+			"state": schema.StringAttribute{
+				Description: "State (S)",
+				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplaceIfConfigured(),
+				},
+			},
+			"country": schema.StringAttribute{
+				Description: "Country (C)",
+				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplaceIfConfigured(),
+				},
 			},
 		},
 	}
@@ -94,7 +154,7 @@ func (r *KeystoreResource) Create(ctx context.Context, req resource.CreateReques
 	model := data.ToKeystoreModel()
 
 	b64File, err := model.CreateKeystoreBase64()
-	model.Base64Text = b64File
+	model.File = b64File
 
 	if err != nil {
 		resp.Diagnostics.AddError("Error during create operation", err.Error())
@@ -102,7 +162,7 @@ func (r *KeystoreResource) Create(ctx context.Context, req resource.CreateReques
 	}
 
 	data.Id = types.StringValue(uuid.New().String())
-	data.Base64Text = types.StringValue(model.Base64Text)
+	data.File = types.StringValue(model.File)
 
 	// Write logs using the tflog package
 	// Documentation: https://terraform.io/plugin/log
@@ -151,8 +211,8 @@ func (r *KeystoreResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
-	newModel.Base64Text = b64File
-	data.Base64Text = types.StringValue(newModel.Base64Text)
+	newModel.File = b64File
+	data.File = types.StringValue(newModel.File)
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
