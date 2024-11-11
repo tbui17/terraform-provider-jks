@@ -3,16 +3,16 @@
 page_title: "jks_keystore Resource - jks"
 subcategory: ""
 description: |-
-  Keystore resource which creates a base64 encoded keystore file using the keytool utility.
-  	The machine running Terraform needs to have the keytool utility installed. https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html.
-  	File is persisted solely within the Terraform state as base64 text.
+  Keystore resource which creates a base64 encoded PKCS12 keystore file valid for 25 years using the keytool utility.
+      The machine running Terraform needs to have the keytool utility installed. https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html.
+      The file is persisted solely within the Terraform state as base64 text.
 ---
 
 # jks_keystore (Resource)
 
-Keystore resource which creates a base64 encoded keystore file using the keytool utility.
-		The machine running Terraform needs to have the keytool utility installed. https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html.
-		File is persisted solely within the Terraform state as base64 text.
+Keystore resource which creates a base64 encoded PKCS12 keystore file valid for 25 years using the keytool utility.
+        The machine running Terraform needs to have the keytool utility installed. https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html.
+        The file is persisted solely within the Terraform state as base64 text.
 
 
 
@@ -21,9 +21,18 @@ Keystore resource which creates a base64 encoded keystore file using the keytool
 
 ### Required
 
-- `password` (String, Sensitive)
+- `password` (String, Sensitive) Password for the keystore and the single key in the keystore
+
+### Optional
+
+- `common_name` (String) Common Name (CN)
+- `country` (String) Country (C)
+- `locality` (String) Locality (L)
+- `organization` (String) Organization (O)
+- `organizational_unit` (String) Organizational Unit (OU)
+- `state` (String) State (S)
 
 ### Read-Only
 
-- `base64_text` (String, Sensitive)
-- `id` (String) The ID of this resource.
+- `file` (String, Sensitive) Base64 encoded keystore file
+- `id` (String) Generated UUID for the keystore

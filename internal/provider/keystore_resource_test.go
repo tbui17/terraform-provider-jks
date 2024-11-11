@@ -32,7 +32,7 @@ func TestAccKeystoreResource(t *testing.T) {
 
 	model := KeystoreModel{
 		DistinguishedName: DistinguishedName{
-			CommonName:         "MyCommonName",
+			CommonName: "MyCommonName",
 		},
 		Password: "MyPassword12345",
 	}

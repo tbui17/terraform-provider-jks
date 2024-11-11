@@ -11,23 +11,22 @@ import (
 )
 
 type KeystoreModel struct {
-	Password   string
-	File string
+	Password          string
+	File              string
 	DistinguishedName DistinguishedName
-
 }
 
 type DistinguishedName struct {
-	CommonName string
-	Organization string
+	CommonName         string
+	Organization       string
 	OrganizationalUnit string
-	Locality string
-	State string
-	Country string
+	Locality           string
+	State              string
+	Country            string
 }
 
 func (d DistinguishedName) String() string {
-	return fmt.Sprintf("CN=%s, OU=%s, O=%s, L=%s, S=%s, C=%s",d.CommonName,d.OrganizationalUnit,d.Organization,d.Locality,d.State,d.Country)
+	return fmt.Sprintf("CN=%s, OU=%s, O=%s, L=%s, S=%s, C=%s", d.CommonName, d.OrganizationalUnit, d.Organization, d.Locality, d.State, d.Country)
 }
 
 const (
