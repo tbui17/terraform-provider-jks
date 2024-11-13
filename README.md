@@ -1,3 +1,14 @@
+# Terraform JKS Keyfile Provider
+
+## Description
+- This is a Terraform provider which contains one resource type: ```keyfile```
+- The resource uses the Java keytool to create a certificate file in PKCS12 format and manage it entirely within Terraform state as a base64 encoded file.
+
+## Usage
+- See [docs](./docs) and [examples](./examples) for details.
+
+___
+
 # Terraform Provider Scaffolding (Terraform Plugin Framework)
 
 _This template repository is built on the [Terraform Plugin Framework](https://github.com/hashicorp/terraform-plugin-framework). The template repository built on the [Terraform Plugin SDK](https://github.com/hashicorp/terraform-plugin-sdk) can be found at [terraform-provider-scaffolding](https://github.com/hashicorp/terraform-provider-scaffolding). See [Which SDK Should I Use?](https://developer.hashicorp.com/terraform/plugin/framework-benefits) in the Terraform documentation for additional information._
